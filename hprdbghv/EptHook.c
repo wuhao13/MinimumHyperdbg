@@ -672,6 +672,7 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
                 LogError("Unable to notify all cores to invalidate their TLB caches as you called hook on vmx-root mode.");
             }
 
+			//hook完毕后返回指针
             return EptHookResultTrampoline(TargetAddress);
         }
     }
@@ -679,13 +680,6 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
 	//非虚拟化状态,此处由Vmcall执行到
     {
 		 LogInfo("[*]VM has not launched call EptHookPerformPageHook2");
-         //设置钩子
-		 PVOID Result = EptHookPerformPageHook2(TargetAddress, HookFunction, GetCr3FromProcessId(ProcessId), eSetHookForRead, eSetHookForWrite, eSetHookForExec);
-        if (Result != NULL)
-        {
-            LogInfo("[*] Hook applied (VM has not launched)");
-            return Result;
-        }
     }
     LogWarning("Hook not applied");
 

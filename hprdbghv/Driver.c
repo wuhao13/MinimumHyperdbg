@@ -214,13 +214,14 @@ NTSTATUS NtCreateFileHook(
 	_In_ ULONG EaLength
 )
 {
+	/*
 	HANDLE         kFileHandle;
 	NTSTATUS       ConvertStatus;
 	UNICODE_STRING kObjectName;
 	ANSI_STRING    FileNameA;
-
+	
 	kObjectName.Buffer = NULL;
-
+	
 	__try
 	{
 		ProbeForRead(FileHandle, sizeof(HANDLE), 1);
@@ -245,11 +246,7 @@ NTSTATUS NtCreateFileHook(
 	{
 		ExFreePoolWithTag(kObjectName.Buffer, 0xA);
 	}
-
-	if (NtCreateFileOrig == NULL)
-	{
-		NtCreateFileOrig = (PVOID)EptHookResultTrampoline(ApiLocationFromSSDTOfNtCreateFile);
-	}
+	*/
 	return NtCreateFileOrig(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
 }
 

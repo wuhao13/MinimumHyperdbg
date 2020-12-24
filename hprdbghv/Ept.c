@@ -686,7 +686,6 @@ EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION Vio
 			// 判断是否需要换页
 			if (EptHookHandleHookedPage(Regs, HookedEntry, ViolationQualification, GuestPhysicalAddr))
 			{
-				//LogInfo("[*] EptHookHandleHookedPage)");
 				//
 				// Next we have to save the current hooked entry to restore on the next instruction's vm-exit
 				//
@@ -697,7 +696,7 @@ EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION Vio
 				// We have to set Monitor trap flag and give it the HookedEntry to work with
 				//
 				//单步执行
-				//HvSetMonitorTrapFlag(TRUE);
+				HvSetMonitorTrapFlag(TRUE);
 			}
 
 			//

@@ -776,6 +776,7 @@ HvDpcBroadcastTerminateGuest(KDPC * Dpc, PVOID DeferredContext, PVOID SystemArgu
 
 /**
  * @brief Set the monitor trap flag
+ * 设置MFT单步异常
  * 
  * @param Set Set or unset the MTFs
  * @return VOID 
