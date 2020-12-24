@@ -209,14 +209,6 @@ VOID
 EptHookUnHookAll();
 
 /**
- * @brief 强制移除指定CR3的HOOK
- *
- * @return VOID
- */
-VOID
-EptHookUnHookOfCr3(CR3_TYPE ProcessCR3);
-
-/**
  * @brief Remove single hook from the hooked pages list and invalidate TLB
  * 
  * @param VirtualAddress 

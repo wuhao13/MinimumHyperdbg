@@ -573,7 +573,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
 		//
 		//存储CR3
 		//
-		HookedEntry->ProcessCR3 = ProcessCr3;
+		//HookedEntry->ProcessCR3 = ProcessCr3;
     return TRUE;
 }
 
@@ -919,64 +919,6 @@ EptHookUnHookSingleAddress(UINT64 VirtualAddress, UINT32 ProcessId)
     return FALSE;
 }
 
-
-VOID
-EptHookUnHookOfCr3(CR3_TYPE ProcessCR3)
-{
-	PLIST_ENTRY TempList = 0;
-
-	//
-	// Should be called from vmx non-root
-	//
-
-
-	if (g_GuestState[KeGetCurrentProcessorNumber()].IsOnVmxRootMode)
-	{
-		return;
-	}
-
-	LogWarning("Remove Hook of CR3");
-	//
-	// In the case of unhooking all pages, we remove the hooked
-	// from EPT table in vmx-root and at last, we need to deallocate
-	// it from the buffers
-	//
-
-	TempList = &g_EptState->HookedPagesList;
-
-	while (&g_EptState->HookedPagesList != TempList->Flink)
-	{
-		TempList = TempList->Flink;
-		PEPT_HOOKED_PAGE_DETAIL HookedEntry = CONTAINING_RECORD(TempList, EPT_HOOKED_PAGE_DETAIL, PageHookList);
-
-		//
-		// Now that we removed this hidden detours hook, it is
-		// time to remove it from g_EptHook2sDetourListHead
-		// if the hook is detours
-		//
-		if (HookedEntry->ProcessCR3.Flags == ProcessCR3.Flags)
-		{
-
-
-
-			// 广播所有核心让TLS缓存失效
-			KeGenericCallDpc(HvDpcBroadcastRemoveHookAndInvalidateSingleEntry, HookedEntry->PhysicalBaseAddress);
-			//EptHookRemoveEntryAndFreePoolFromEptHook2sDetourList(HookedEntry->VirtualAddress);
-									// 从链表中移除hook页
-			if (!RemoveEntryList(TempList))
-			{
-
-			}
-
-			if (!PoolManagerFreePool(HookedEntry))
-			{
-				LogError("Something goes wrong ! the pool not found in the list of previously allocated pools by pool manager.");
-			}
-
-			LogWarning("Remove Hook Success");
-		}
-	}
-}
 /**
  * @brief Remove all hooks from the hooked pages list and invalidate TLB
  * @detailsShould be called from Vmx Non-root

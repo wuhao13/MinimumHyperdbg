@@ -53,6 +53,9 @@ PoolManagerInitialize()
     //
     PoolManagerRequestAllocation(MAX_EXEC_TRAMPOLINE_SIZE, 5, EXEC_TRAMPOLINE);
 
+
+	PoolManagerRequestAllocation(sizeof(HIDDEN_HOOKS_DETOUR_DETAILS), 5, DETOUR_HOOK_DETAILS);
+
     //
     // Request pages for thread steppings detail
     //
