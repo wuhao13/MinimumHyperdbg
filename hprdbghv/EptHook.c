@@ -726,6 +726,8 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
     //
     __vmx_vmread(GUEST_RIP, &GuestRip);
 
+	/*
+
     if (!ViolationQualification.EptExecutable && ViolationQualification.ExecuteAccess)
     {
         //
@@ -777,6 +779,12 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
         return FALSE;
     }
 
+	*/
+
+	if (!ViolationQualification.EptExecutable && (ViolationQualification.ExecuteAccess) && !(ViolationQualification.ReadAccess) && !(ViolationQualification.WriteAccess))
+	{
+		return FALSE;
+	}
     //
     // Restore to its orginal entry for one instruction
     //
