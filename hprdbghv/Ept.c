@@ -664,21 +664,57 @@ EptInitializeSeconadaryEpt()
 BOOLEAN
 EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION ViolationQualification, UINT64 GuestPhysicalAddr)
 {
-	PLIST_ENTRY TempList  = 0;
-	/*
-    TempList = &g_EptState->HookedPagesList;
-    while (&g_EptState->HookedPagesList != TempList->Flink)
-    {
-        TempList                            = TempList->Flink;
-        PEPT_HOOKED_PAGE_DETAIL HookedEntry = CONTAINING_RECORD(TempList, EPT_HOOKED_PAGE_DETAIL, PageHookList);
-    }*/
-    //
-    // Redo the instruction
-    //
-    g_GuestState[KeGetCurrentProcessorNumber()].IncrementRip = FALSE;
-    return TRUE;
-}
+	BOOLEAN     IsHandled = FALSE;
+	PLIST_ENTRY TempList = 0;
 
+	TempList = &g_EptState->HookedPagesList;
+	while (&g_EptState->HookedPagesList != TempList->Flink)
+	{
+		TempList = TempList->Flink;
+		PEPT_HOOKED_PAGE_DETAIL HookedEntry = CONTAINING_RECORD(TempList, EPT_HOOKED_PAGE_DETAIL, PageHookList);
+		//判断虚拟机的物理地址是否等于HOOK的物理地址
+		if (HookedEntry->PhysicalBaseAddress == PAGE_ALIGN(GuestPhysicalAddr))
+		{
+			//
+			// We found an address that matches the details
+			//
+			// Returning true means that the caller should return to the ept state to
+			// the previous state when this instruction is executed
+			// by setting the Monitor Trap Flag. Return false means that nothing special
+			// for the caller to do
+			//
+			// 权限有效性检查，如果合理触发换页
+			if (EptHookHandleHookedPage(Regs, HookedEntry, ViolationQualification, GuestPhysicalAddr))
+			{
+				//
+				// Next we have to save the current hooked entry to restore on the next instruction's vm-exit
+				//
+				// 换页
+				g_GuestState[KeGetCurrentProcessorNumber()].MtfEptHookRestorePoint = HookedEntry;
+
+				//
+				// We have to set Monitor trap flag and give it the HookedEntry to work with
+				//
+				HvSetMonitorTrapFlag(TRUE);
+			}
+
+			//
+			// Indicate that we handled the ept violation
+			//
+			IsHandled = TRUE;
+
+			//
+			// Get out of the loop
+			//
+			break;
+		}
+	}
+	//
+	// Redo the instruction
+	//
+	g_GuestState[KeGetCurrentProcessorNumber()].IncrementRip = FALSE;
+	return IsHandled;
+}
 /**
  * @brief Handle VM exits for EPT violations
  * @details Violations are thrown whenever an operation is performed on an EPT entry 

@@ -152,6 +152,12 @@ BOOLEAN g_ExecuteOnlySupport;
  */
 BOOLEAN g_AllowIOCTLFromUsermode;
 
+/**
+ * @brief List header of hidden hooks detour
+ *
+ */
+LIST_ENTRY g_EptHook2sDetourListHead;
+
 
 /**
  * @brief Determines whether the one application gets the handle or not

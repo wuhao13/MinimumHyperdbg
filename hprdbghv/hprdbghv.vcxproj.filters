@@ -116,6 +116,9 @@
     <ClCompile Include="Events.c">
       <Filter>Source Files\VMM\VMX</Filter>
     </ClCompile>
+    <ClCompile Include="EptHook.c">
+      <Filter>Header Files\VMM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -182,6 +185,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Broadcast.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
   </ItemGroup>

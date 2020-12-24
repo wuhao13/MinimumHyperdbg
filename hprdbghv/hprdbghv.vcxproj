@@ -107,6 +107,7 @@
     <ClCompile Include="Counters.c" />
     <ClCompile Include="CrossVmexits.c" />
     <ClCompile Include="Ept.c" />
+    <ClCompile Include="EptHook.c" />
     <ClCompile Include="Events.c" />
     <ClCompile Include="Vmexit.c" />
     <ClCompile Include="IdtEmulation.c" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Dpc.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="GlobalVariables.h" />
+    <ClInclude Include="Hooks.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="HypervisorRoutines.h" />
     <ClInclude Include="IdtEmulation.h" />

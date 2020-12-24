@@ -47,10 +47,9 @@
 #include "Broadcast.h"
 #include "Vmcall.h"
 #include "Vmx.h"
-//#include "ExtensionCommands.h"
+#include "Hooks.h"
 #include "HypervisorRoutines.h"
 #include "IoHandler.h"
-//#include "Steppings.h"
 
 //
 // Global Variables should be the last header to include

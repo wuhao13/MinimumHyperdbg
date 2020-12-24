@@ -30,6 +30,9 @@ VmxInitializer()
 
     PAGED_CODE();
 
+
+	InitializeListHead(&g_EptHook2sDetourListHead);
+
     //
     // Allocate	global variable to hold Ept State
     //
