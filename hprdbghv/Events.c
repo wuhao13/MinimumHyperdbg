@@ -15,12 +15,12 @@
 //这是用来向Guest注入异常的工具
 
 /**
- * @brief Injects interruption to a guest
+ * @brief Injects interruption to a guest 注入中断到guest
  * 
- * @param InterruptionType Type of interrupt
- * @param Vector Vector Number of Interrupt (IDT Index)
- * @param DeliverErrorCode Deliver Error Code or Not
- * @param ErrorCode Error Code (If DeliverErrorCode is true)
+ * @param InterruptionType Type of interrupt 中断类型
+ * @param Vector Vector Number of Interrupt (IDT Index) 中断向量数
+ * @param DeliverErrorCode Deliver Error Code or Not 是否传递错误代码
+ * @param ErrorCode Error Code (If DeliverErrorCode is true) 错误代码
  * @return VOID 
  */
 VOID

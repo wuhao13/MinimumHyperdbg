@@ -58,6 +58,7 @@ IdtEmulationHandleExceptionAndNmi(VMEXIT_INTERRUPT_INFO InterruptExit, UINT32 Cu
     }
     else if (InterruptExit.InterruptionType == INTERRUPT_TYPE_HARDWARE_EXCEPTION && InterruptExit.Vector == EXCEPTION_VECTOR_UNDEFINED_OPCODE)
     {
+        //向客户机注入异常
 		EventInjectUndefinedOpcode(CurrentProcessorIndex);
     }
     else if (InterruptExit.Vector == EXCEPTION_VECTOR_PAGE_FAULT)
