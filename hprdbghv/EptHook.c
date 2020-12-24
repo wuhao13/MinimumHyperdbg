@@ -705,96 +705,74 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
 BOOLEAN
 EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDetails, VMX_EXIT_QUALIFICATION_EPT_VIOLATION ViolationQualification, SIZE_T PhysicalAddress)
 {
-    ULONG64 GuestRip;
-    ULONG64 ExactAccessedAddress;
-    ULONG64 AlignedVirtualAddress;
-    ULONG64 AlignedPhysicalAddress;
+	ULONG64 GuestRip;
+	ULONG64 ExactAccessedAddress;
+	ULONG64 AlignedVirtualAddress;
+	ULONG64 AlignedPhysicalAddress;
 
-    //
-    // Get alignment
-    //
-    AlignedVirtualAddress  = PAGE_ALIGN(HookedEntryDetails->VirtualAddress);
-    AlignedPhysicalAddress = PAGE_ALIGN(PhysicalAddress);
+	//
+	// Get alignment
+	//
+	AlignedVirtualAddress = PAGE_ALIGN(HookedEntryDetails->VirtualAddress);
+	AlignedPhysicalAddress = PAGE_ALIGN(PhysicalAddress);
 
-    //
-    // Let's read the exact address that was accesses
-    //
-    ExactAccessedAddress = AlignedVirtualAddress + PhysicalAddress - AlignedPhysicalAddress;
+	//
+	// Let's read the exact address that was accesses
+	//
+	ExactAccessedAddress = AlignedVirtualAddress + PhysicalAddress - AlignedPhysicalAddress;
 
-    //
-    // Reading guest's RIP
-    //
-    __vmx_vmread(GUEST_RIP, &GuestRip);
+	//
+	// Reading guest's RIP
+	//
+	__vmx_vmread(GUEST_RIP, &GuestRip);
 
-	/*
-
-    if (!ViolationQualification.EptExecutable && ViolationQualification.ExecuteAccess)
-    {
-        //
-        // Generally, we should never reach here, we didn't implement HyperDbg like this ;)
-        //
-        LogError("Guest RIP : 0x%llx tries to execute the page at : 0x%llx", GuestRip, ExactAccessedAddress);
-    }
-    else if (!ViolationQualification.EptWriteable && ViolationQualification.WriteAccess)
-    {
-        //
-        // Test
-        //
-
-        //
-        // LogInfo("Guest RIP : 0x%llx tries to write on the page at :0x%llx", GuestRip, ExactAccessedAddress);
-        //
-
-        //
-        // Trigger the event related to Monitor Write
-        //
-
-        //
-        // And also search the read/write event
-        //
-    }
-    else if (!ViolationQualification.EptReadable && ViolationQualification.ReadAccess)
-    {
-        //
-        // Test
-        //
-
-        //
-        // LogInfo("Guest RIP : 0x%llx tries to read the page at :0x%llx", GuestRip, ExactAccessedAddress);
-        //
-
-        //
-        // Trigger the event related to Monitor Read
-        //
-
-        //
-        // And also search the read/write event
-        //
-    }
-    else
-    {
-        //
-        // there was an unexpected ept violation
-        //
-        return FALSE;
-    }
-
-	*/
-
-	if (!ViolationQualification.EptExecutable && (ViolationQualification.ExecuteAccess) && !(ViolationQualification.ReadAccess) && !(ViolationQualification.WriteAccess))
+	if (!ViolationQualification.EptExecutable && ViolationQualification.ExecuteAccess)
 	{
+		//
+		// Generally, we should never reach here, we didn't implement HyperDbg like this ;)
+		//
+		LogError("Guest RIP : 0x%llx tries to execute the page at : 0x%llx", GuestRip, ExactAccessedAddress);
+	}
+	else if (!ViolationQualification.EptWriteable && ViolationQualification.WriteAccess)
+	{
+		//
+		// Test
+		//
+
+		//
+		// LogInfo("Guest RIP : 0x%llx tries to write on the page at :0x%llx", GuestRip, ExactAccessedAddress);
+		//
+
+	}
+	else if (!ViolationQualification.EptReadable && ViolationQualification.ReadAccess)
+	{
+		//
+		// Test
+		//
+
+		//
+		// LogInfo("Guest RIP : 0x%llx tries to read the page at :0x%llx", GuestRip, ExactAccessedAddress);
+		//
+	}
+	else
+	{
+		//
+		// there was an unexpected ept violation
+		//
 		return FALSE;
 	}
-    //
-    // Restore to its orginal entry for one instruction
-    //
-    EptSetPML1AndInvalidateTLB(HookedEntryDetails->EntryAddress, HookedEntryDetails->OriginalEntry, INVEPT_SINGLE_CONTEXT);
 
-    //
-    // Means that restore the Entry to the previous state after current instruction executed in the guest
-    //
-    return TRUE;
+	//
+	// Restore to its orginal entry for one instruction
+	//
+	EptSetPML1AndInvalidateTLB(HookedEntryDetails->EntryAddress, HookedEntryDetails->OriginalEntry, INVEPT_SINGLE_CONTEXT);
+
+	//
+	// Means that restore the Entry to the previous state after current instruction executed in the guest
+	//
+	return TRUE;
 }
+
 
 /**
  * @brief Remove the enrty from g_EptHook2sDetourListHead in the case

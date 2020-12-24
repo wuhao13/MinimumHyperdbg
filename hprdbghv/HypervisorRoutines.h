@@ -390,14 +390,6 @@ VOID
 HvPerformIoBitmapReset();
 
 /**
- * @brief routines to disable vm-exit for breakpoints (exception bitmap)
- * 
- * @return VOID 
- */
-//VOID
-//HvDisableBreakpointExitingOnExceptionBitmapAllCores();
-
-/**
  * @brief The broadcast function which removes the single hook and invalidate TLB
  * 
  * @param Dpc 
