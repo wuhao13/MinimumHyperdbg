@@ -1202,54 +1202,12 @@ typedef struct _EPT_HOOKED_PAGE_DETAIL
 	 */
     BOOLEAN IsExecutionHook;
 
-    /**
-	 * @brief If TRUE shows that this is the information about 
-	 * a hidden breakpoint command (not a monitor or hidden detours)
-	 */
-    BOOLEAN IsHiddenBreakpoint;
-
-	/*
-	*
-	*/
-	BOOLEAN IsHiddenMemoryEdit;
-
 	/*
 	* 存储这个HOOK对应的PID
 	*/
 
 	CR3_TYPE ProcessCR3;
 
-	/**
-	*
-	* @brief [add] 隐藏内存地址
-	*
-	*/
-	UINT64 HiddenMemoryEditAddresses[MaximumHiddenEditMemeory];
-
-	/**
-	*
-	* @brief [add] 修改内存的数量
-	*
-	*/
-	UINT64 CountOfMemoryEdit;
-
-    /**
-	 * @brief Address of hooked pages (multiple breakpoints on a single page)
-	 * this is only used in hidden breakpoints (not hidden detours)
-	 */
-    UINT64 BreakpointAddresses[MaximumHiddenBreakpointsOnPage];
-
-    /**
-	 * @brief Character that was previously used in BreakpointAddresses
-	 * this is only used in hidden breakpoints (not hidden detours)
-	 */
-    CHAR PreviousBytesOnBreakpointAddresses[MaximumHiddenBreakpointsOnPage];
-
-    /**
-	 * @brief Count of breakpoints (multiple breakpoints on a single page)
-	 * this is only used in hidden breakpoints (not hidden detours)
-	 */
-    UINT64 CountOfBreakpoints;
 
 } EPT_HOOKED_PAGE_DETAIL, *PEPT_HOOKED_PAGE_DETAIL;
 

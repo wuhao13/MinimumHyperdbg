@@ -101,6 +101,53 @@ VmxVmcallHandler(UINT64 VmcallNumber,
         VmcallStatus = STATUS_SUCCESS;
         break;
     }
+	case VMCALL_CHANGE_PAGE_ATTRIB:
+	{
+		//
+		// Mask is the upper 32 bits to this Vmcall
+		// Upper 32 bits of the Vmcall contains the attribute mask
+		//
+
+		UINT32 AttributeMask = (UINT32)((VmcallNumber & 0xFFFFFFFF00000000) >> 32);
+		/*
+		//wtf?这里得到的值不是预期的？
+		UnsetRead  = (AttributeMask & PAGE_ATTRIB_READ) ? TRUE : FALSE;
+		UnsetWrite = (AttributeMask & PAGE_ATTRIB_WRITE) ? TRUE : FALSE;
+		UnsetExec  = (AttributeMask & PAGE_ATTRIB_EXEC) ? TRUE : FALSE;
+		*/
+
+		if ((AttributeMask & PAGE_ATTRIB_READ) == 0)
+		{
+			UnsetRead = FALSE;
+			LogInfo("UnsetRead = FALSE");
+		}
+
+		if ((AttributeMask & PAGE_ATTRIB_WRITE) == 0)
+		{
+			UnsetWrite = FALSE;
+			LogInfo("UnsetWrite = FALSE");
+		}
+
+		if ((AttributeMask & PAGE_ATTRIB_EXEC) == 0)
+		{
+			UnsetExec = FALSE;
+			LogInfo("UnsetExec = FALSE");
+		}
+
+		CR3_TYPE ProcCr3 = { 0 };
+		ProcCr3.Flags = OptionalParam3;
+		LogInfo("VmxVmcallHandler EptHookPerformPageHook2.");
+		HookResult = EptHookPerformPageHook2(OptionalParam1 /* TargetAddress */,
+			OptionalParam2 /* Hook Function*/,
+			ProcCr3 /* Process cr3 */,
+			UnsetRead,
+			UnsetWrite,
+			UnsetExec);
+
+		VmcallStatus = (HookResult == TRUE) ? STATUS_SUCCESS : STATUS_UNSUCCESSFUL;
+
+		break;
+	}
     //使ept缓存表中的单个上下文无效
     case VMCALL_INVEPT_SINGLE_CONTEXT:
     {
@@ -115,6 +162,22 @@ VmxVmcallHandler(UINT64 VmcallNumber,
         VmcallStatus = STATUS_SUCCESS;
         break;
     }
+	//卸载并恢复所有HOOK
+	case VMCALL_UNHOOK_ALL_PAGES:
+	{
+		EptHookRestoreAllHooksToOrginalEntry();
+		VmcallStatus = STATUS_SUCCESS;
+		break;
+	}
+	//卸载并恢复指定HOOK
+	case VMCALL_UNHOOK_SINGLE_PAGE:
+	{
+		if (!EptHookRestoreSingleHookToOrginalEntry(OptionalParam1))
+		{
+			VmcallStatus = STATUS_UNSUCCESSFUL;
+		}
+		break;
+	}
     //更改MSR位图以进行读取
     case VMCALL_CHANGE_MSR_BITMAP_READ:
     {

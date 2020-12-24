@@ -492,8 +492,6 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
         //
         HookedPage->IsExecutionHook = TRUE;
 
-		HookedPage->IsHiddenBreakpoint = FALSE;
-
         //
         // In execution hook, we have to make sure to unset read, write because
         // an EPT violation should occur for these cases and we can swap the original page
@@ -593,7 +591,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
  * @return BOOLEAN Returns true if the hook was successfull or false if there was an error
  * 
  */
-BOOLEAN
+PVOID
 EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSetHookForRead, BOOLEAN eSetHookForWrite, BOOLEAN eSetHookForExec)
 {
     UINT32 PageHookMask = 0;
@@ -610,7 +608,7 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
         // In the current design of hyperdbg we use execute-only pages to implement hidden hooks for exec page,
         // so your processor doesn't have this feature and you have to implment it in other ways :(
         //
-        return FALSE;
+        return NULL;
     }
 	
     if (eSetHookForWrite && !eSetHookForRead)
@@ -618,7 +616,7 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
         //
         // The hidden hook with Write Enable and Read Disabled will cause EPT violation!
         //
-        return FALSE;
+        return NULL;
     }
 
     //
@@ -626,7 +624,6 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
 	// 获取下当前CPU的ID
     //
     LogicalCoreIndex = KeGetCurrentProcessorIndex();
-
 
     if (eSetHookForRead)
     {
@@ -646,10 +643,8 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
         //
         // nothing to hook
         //
-        return FALSE;
+        return NULL;
     }
-
-	
 
 	//当前CPU是否虚拟化状态
     if (g_GuestState[LogicalCoreIndex].HasLaunched)
@@ -677,7 +672,7 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
                 LogError("Unable to notify all cores to invalidate their TLB caches as you called hook on vmx-root mode.");
             }
 
-            return TRUE;
+            return EptHookResultTrampoline(TargetAddress);
         }
     }
     else
@@ -685,15 +680,16 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
     {
 		 LogInfo("[*]VM has not launched call EptHookPerformPageHook2");
          //设置钩子
-        if (EptHookPerformPageHook2(TargetAddress, HookFunction, GetCr3FromProcessId(ProcessId), eSetHookForRead, eSetHookForWrite, eSetHookForExec) == TRUE)
+		 PVOID Result = EptHookPerformPageHook2(TargetAddress, HookFunction, GetCr3FromProcessId(ProcessId), eSetHookForRead, eSetHookForWrite, eSetHookForExec);
+        if (Result != NULL)
         {
             LogInfo("[*] Hook applied (VM has not launched)");
-            return TRUE;
+            return Result;
         }
     }
     LogWarning("Hook not applied");
 
-    return FALSE;
+    return NULL;
 }
 
 /**
@@ -882,9 +878,6 @@ EptHookUnHookSingleAddress(UINT64 VirtualAddress, UINT32 ProcessId)
         TempList                            = TempList->Flink;
         PEPT_HOOKED_PAGE_DETAIL HookedEntry = CONTAINING_RECORD(TempList, EPT_HOOKED_PAGE_DETAIL, PageHookList);	
         //
-        // Check if it's a hidden breakpoint or hidden detours
-
-        //
         // It's a hidden detours
         //
 		// 简单的很
@@ -1038,8 +1031,6 @@ EptHookUnHookAll()
 
 		}
 			LogWarning("Remove Hook Success");
-		//禁止异常
-//		HvDisableBreakpointExitingOnExceptionBitmapAllCores();
 
         if (!PoolManagerFreePool(HookedEntry))
         {

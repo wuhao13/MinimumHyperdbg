@@ -60,6 +60,8 @@ DrvDispatchIoControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
         case IOCTL_TERMINATE_VMX:
 			if (g_VTEnabled)
 			{
+
+				EptHookUnHookAll();
 				//
 				// terminate vmx
 				//

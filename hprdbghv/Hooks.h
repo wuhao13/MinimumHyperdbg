@@ -168,7 +168,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
  * @param SetHookForExec 
  * @return BOOLEAN 
  */
-BOOLEAN
+PVOID
 EptHook2(PVOID TargetAddress, PVOID HookFunction,UINT32 ProcessId, BOOLEAN eSetHookForRead, BOOLEAN eSetHookForWrite, BOOLEAN eSetHookForExec);
 
 /**
