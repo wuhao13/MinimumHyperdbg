@@ -13,7 +13,7 @@
 
 /**
  * @brief Check whether EPT features are present or not
- * 
+ * 检查EPT功能是否存在
  * @return BOOLEAN Shows whether EPT is supported in this machine or not
  */
 BOOLEAN
@@ -58,7 +58,7 @@ EptCheckFeatures()
 
 /**
  * @brief Build MTRR Map of current physical addresses
- * 
+ * 建立当前物理地址的MTRR映射
  * @return BOOLEAN 
  */
 BOOLEAN
@@ -132,7 +132,7 @@ EptBuildMtrrMap()
 
 /**
  * @brief Get the PML1 entry for this physical address if the page is split
- * 
+ * 如果页面已拆分，则获取此物理地址的PML1条目
  * @param EptPageTable The EPT Page Table
  * @param PhysicalAddress Physical address that we want to get its PML1
  * @return PEPT_PML1_ENTRY Return NULL if the address is invalid or the page wasn't already split
@@ -193,7 +193,7 @@ EptGetPml1Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
 
 /**
  * @brief Get the PML2 entry for this physical address
- * 
+ * 获取此物理地址的PML2条目
  * @param EptPageTable The EPT Page Table
  * @param PhysicalAddress Physical Address that we want to get its PML2
  * @return PEPT_PML2_ENTRY The PML2 Entry Structure
@@ -222,7 +222,7 @@ EptGetPml2Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
 
 /**
  * @brief Split 2MB (LargePage) into 4kb pages
- * 
+ * 将2MB（大页面）拆分为4kb页面
  * @param EptPageTable The EPT Page Table
  * @param PreAllocatedBuffer The address of pre-allocated buffer
  * @param PhysicalAddress Physical address of where we want to split
@@ -317,7 +317,7 @@ EptSplitLargePage(PVMM_EPT_PAGE_TABLE EptPageTable, PVOID PreAllocatedBuffer, SI
 
 /**
  * @brief Set up PML2 Entries
- * 
+ * 设置PML2条目
  * @param NewEntry The PML2 Entry
  * @param PageFrameNumber PFN (Physical Address)
  * @return VOID 
@@ -391,8 +391,7 @@ EptSetupPML2Entry(PEPT_PML2_ENTRY NewEntry, SIZE_T PageFrameNumber)
                 if (TargetMemoryType == MEMORY_TYPE_UNCACHEABLE)
                 {
                     //
-                    // If this is going to be marked uncacheable, then we stop the search as UC always
-                    // takes precedent
+                    // If this is going to be marked uncacheable, then we stop the search as UC always takes precedent
                     //
                     break;
                 }
@@ -407,7 +406,7 @@ EptSetupPML2Entry(PEPT_PML2_ENTRY NewEntry, SIZE_T PageFrameNumber)
 
 /**
  * @brief Allocates page maps and create identity page table
- * 
+ * 分配页面映射并创建身份页面表
  * @return PVMM_EPT_PAGE_TABLE identity map page-table
  */
 PVMM_EPT_PAGE_TABLE
@@ -665,14 +664,13 @@ EptInitializeSeconadaryEpt()
 BOOLEAN
 EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION ViolationQualification, UINT64 GuestPhysicalAddr)
 {
-	/*PLIST_ENTRY TempList  = 0;
-	
+	PLIST_ENTRY TempList  = 0;
+	/*
     TempList = &g_EptState->HookedPagesList;
     while (&g_EptState->HookedPagesList != TempList->Flink)
     {
         TempList                            = TempList->Flink;
         PEPT_HOOKED_PAGE_DETAIL HookedEntry = CONTAINING_RECORD(TempList, EPT_HOOKED_PAGE_DETAIL, PageHookList);
-		IsHandled = TRUE;
     }*/
     //
     // Redo the instruction

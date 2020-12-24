@@ -41,7 +41,7 @@ EventInjectInterruption(INTERRUPT_TYPE InterruptionType, EXCEPTION_VECTORS Vecto
 
 /**
  * @brief Inject #BP to the guest (Event Injection)
- * 
+ * 向Guest注入#BP（事件注入）
  * @return VOID 
  */
 VOID
@@ -55,7 +55,7 @@ EventInjectBreakpoint()
 
 /**
  * @brief Inject #GP to the guest (Event Injection)
- * 
+ * 向Guest注入#GP（事件注入）
  * @return VOID 
  */
 VOID
@@ -69,7 +69,7 @@ EventInjectGeneralProtection()
 
 /**
  * @brief Inject #UD to the guest (Invalid Opcode - Undefined Opcode)
- * 
+ * 向Guest注入#UD（无效的操作码-未定义的操作码）
  * @return VOID 
  */
 VOID
@@ -85,7 +85,7 @@ EventInjectUndefinedOpcode(UINT32 CurrentProcessorIndex)
 
 /**
  * @brief Inject Debug Breakpoint Exception
- * 
+ * 注入调试断点异常
  * @return VOID 
  */
 VOID
@@ -96,7 +96,7 @@ EventInjectDebugBreakpoint()
 
 /**
  * @brief Inject #PF to the guest (Page-Fault for EFER Injector)
- * 
+ * 向Guest注入#PF（EFER注入器的页面错误）
  * @param ErrorCode 
  * @return VOID 
  */

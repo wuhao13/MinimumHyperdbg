@@ -187,6 +187,7 @@ VmxVmcallHandler(UINT64 VmcallNumber,
         //
         // Disable vm-exits on breakpoints (exception bitmap)
         //
+		HvUnsetExceptionBitmap(EXCEPTION_VECTOR_PAGE_FAULT);
         HvUnsetExceptionBitmap(EXCEPTION_VECTOR_BREAKPOINT);
         VmcallStatus = STATUS_SUCCESS;
 

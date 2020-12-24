@@ -990,15 +990,15 @@ typedef struct _MTRR_RANGE_DESCRIPTOR
  */
 typedef struct _EPT_STATE
 {
-    LIST_ENTRY            HookedPagesList;             // A list of the details about hooked pages
+    LIST_ENTRY            HookedPagesList;             // 有关挂钩页面的详细信息列表
     MTRR_RANGE_DESCRIPTOR MemoryRanges[9];             // Physical memory ranges described by the BIOS in the MTRRs. Used to build the EPT identity mapping.
     ULONG                 NumberOfEnabledMemoryRanges; // Number of memory ranges specified in MemoryRanges
     EPTP                  EptPointer;                  // Extended-Page-Table Pointer
     PVMM_EPT_PAGE_TABLE   EptPageTable;                // Page table entries for EPT operation
 
-    PVMM_EPT_PAGE_TABLE SecondaryEptPageTable; // Secondary Page table entries for EPT operation (Used in debugger mechanisms)
-    BOOLEAN             SecondaryInitialized;  // Is Secondary Page table entries initialized or not (Used in debugger mechanisms)
-    EPTP                SecondaryEptPointer;   // Secondary Extended-Page-Table Pointer
+    PVMM_EPT_PAGE_TABLE SecondaryEptPageTable;		   // Secondary Page table entries for EPT operation (Used in debugger mechanisms)
+    BOOLEAN             SecondaryInitialized;          // Is Secondary Page table entries initialized or not (Used in debugger mechanisms)
+    EPTP                SecondaryEptPointer;           // Secondary Extended-Page-Table Pointer
 
 } EPT_STATE, *PEPT_STATE;
 

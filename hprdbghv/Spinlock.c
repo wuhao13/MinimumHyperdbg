@@ -27,13 +27,13 @@
 
 /**
  * @brief The maximum wait before PAUSE
- * 
+ * 锁最大暂停时间
  */
 static unsigned MaxWait = 65536;
 
 /**
  * @brief Tries to get the lock otherwise returns
- * 
+ * 尝试获取锁，否则返回False
  * @param LONG Lock variable
  * @return BOOLEAN If it was successfull on getting the lock
  */
@@ -45,7 +45,7 @@ SpinlockTryLock(volatile LONG * Lock)
 
 /**
  * @brief Tries to get the lock and won't return until successfully get the lock
- * 
+ * 尝试获取锁，直到成功获取锁后才会返回
  * @param LONG Lock variable
  */
 void
@@ -78,7 +78,7 @@ SpinlockLock(volatile LONG * Lock)
 
 /**
  * @brief Release the lock
- * 
+ * 释放锁
  * @param LONG Lock variable
  */
 
