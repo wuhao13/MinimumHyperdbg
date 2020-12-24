@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file HypervisorRoutines.c
  * @author Sina Karvandi (sina@rayanfam.com)
  * @brief This file describes the routines in Hypervisor
