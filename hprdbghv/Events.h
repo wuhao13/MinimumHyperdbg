@@ -24,31 +24,32 @@
 
 /**
  * @brief Exceptions enum
- * 
+ * 中断事件
+ * Intel 5.2
  */
 typedef enum _EXCEPTION_VECTORS
 {
-    EXCEPTION_VECTOR_DIVIDE_ERROR,
-    EXCEPTION_VECTOR_DEBUG_BREAKPOINT,
-    EXCEPTION_VECTOR_NMI,
-    EXCEPTION_VECTOR_BREAKPOINT,
-    EXCEPTION_VECTOR_OVERFLOW,
-    EXCEPTION_VECTOR_BOUND_RANGE_EXCEEDED,
-    EXCEPTION_VECTOR_UNDEFINED_OPCODE,
-    EXCEPTION_VECTOR_NO_MATH_COPROCESSOR,
-    EXCEPTION_VECTOR_DOUBLE_FAULT,
-    EXCEPTION_VECTOR_RESERVED0,
-    EXCEPTION_VECTOR_INVALID_TASK_SEGMENT_SELECTOR,
-    EXCEPTION_VECTOR_SEGMENT_NOT_PRESENT,
-    EXCEPTION_VECTOR_STACK_SEGMENT_FAULT,
-    EXCEPTION_VECTOR_GENERAL_PROTECTION_FAULT,
-    EXCEPTION_VECTOR_PAGE_FAULT,
-    EXCEPTION_VECTOR_RESERVED1,
-    EXCEPTION_VECTOR_MATH_FAULT,
-    EXCEPTION_VECTOR_ALIGNMENT_CHECK,
-    EXCEPTION_VECTOR_MACHINE_CHECK,
-    EXCEPTION_VECTOR_SIMD_FLOATING_POINT_NUMERIC_ERROR,
-    EXCEPTION_VECTOR_VIRTUAL_EXCEPTION,
+    EXCEPTION_VECTOR_DIVIDE_ERROR,                                              //DIV IDIV指令 ERROR NO
+    EXCEPTION_VECTOR_DEBUG_BREAKPOINT,                                          //任何代码或数据引用或INT 1指令，ERROR NO
+    EXCEPTION_VECTOR_NMI,                                                       //不可屏蔽中断，ERROR NO
+    EXCEPTION_VECTOR_BREAKPOINT,                                                //INT3中断，ERROR NO             
+    EXCEPTION_VECTOR_OVERFLOW,                                                  //INTO中断，ERROR NO
+    EXCEPTION_VECTOR_BOUND_RANGE_EXCEEDED,                                      //BOUND中断，ERROR NO
+    EXCEPTION_VECTOR_UNDEFINED_OPCODE,                                          //#UD2指令或保留操作码，ERROR NO
+    EXCEPTION_VECTOR_NO_MATH_COPROCESSOR,                                       //浮点或WAIT/FWAIT指令，ERROR NO
+    EXCEPTION_VECTOR_DOUBLE_FAULT,                                              //可以生成异常、NMI或INTR的任何指令,ERROR YES,ZERO
+    EXCEPTION_VECTOR_RESERVED0,                                                 //浮点指令，ERROR NO
+    EXCEPTION_VECTOR_INVALID_TASK_SEGMENT_SELECTOR,                             //任务切换或TSS访问,ERROR YES
+    EXCEPTION_VECTOR_SEGMENT_NOT_PRESENT,                                       //加载段寄存器或访问系统段,ERROR YES
+    EXCEPTION_VECTOR_STACK_SEGMENT_FAULT,                                       //堆栈操作和SS寄存器加载,ERROR YES
+    EXCEPTION_VECTOR_GENERAL_PROTECTION_FAULT,                                  //任何内存引用和其他保护检查,ERROR YES
+    EXCEPTION_VECTOR_PAGE_FAULT,                                                //任何内存引用,ERROR YES
+    EXCEPTION_VECTOR_RESERVED1,                                                 //保留
+    EXCEPTION_VECTOR_MATH_FAULT,                                                //浮点或WAIT/FWAIT指令，ERROR NO
+    EXCEPTION_VECTOR_ALIGNMENT_CHECK,                                           //内存中的任何数据引用,ERROR YES,ZERO
+    EXCEPTION_VECTOR_MACHINE_CHECK,                                             //错误代码（如果有）和来源取决于模型，ERROR NO
+    EXCEPTION_VECTOR_SIMD_FLOATING_POINT_NUMERIC_ERROR,                         //SIMD浮点指令，ERROR NO
+    EXCEPTION_VECTOR_VIRTUAL_EXCEPTION,                                         //？？
     EXCEPTION_VECTOR_RESERVED2,
     EXCEPTION_VECTOR_RESERVED3,
     EXCEPTION_VECTOR_RESERVED4,
