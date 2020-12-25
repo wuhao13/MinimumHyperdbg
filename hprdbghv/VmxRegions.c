@@ -212,7 +212,7 @@ VmxAllocateVmcsRegion(VIRTUAL_MACHINE_STATE * CurrentGuestState)
 }
 
 /**
- * @brief Allocate VMM Stack
+ * @brief 分配VMM堆栈
  * 
  * @param ProcessorID Logical Core Id
  * @return BOOLEAN Returns true if allocation was successfull otherwise returns false
@@ -241,7 +241,7 @@ VmxAllocateVmmStack(INT ProcessorID)
 }
 
 /**
- * @brief Allocate a buffer forr Msr Bitmap
+ * @brief 分配一个Msr Bitmap缓冲区 
  * 
  * @param ProcessorID 
  * @return BOOLEAN Returns true if allocation was successfull otherwise returns false
@@ -250,17 +250,20 @@ BOOLEAN
 VmxAllocateMsrBitmap(INT ProcessorID)
 {
     //
-    // Allocate memory for MSR Bitmap
+    // 分配内存用于 MSR Bitmap
     //
     g_GuestState[ProcessorID].MsrBitmapVirtualAddress = ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE, POOLTAG); // should be aligned
 
+	//如果申请失败则返回失败(msr都失败，也是醉了)
     if (g_GuestState[ProcessorID].MsrBitmapVirtualAddress == NULL)
     {
         LogError("Insufficient memory in allocationg Msr Bitmaps");
         return FALSE;
     }
+	//清零MSR区域
     RtlZeroMemory(g_GuestState[ProcessorID].MsrBitmapVirtualAddress, PAGE_SIZE);
 
+	//转换MSR区域的虚拟地址到物理地址
     g_GuestState[ProcessorID].MsrBitmapPhysicalAddress = VirtualAddressToPhysicalAddress(g_GuestState[ProcessorID].MsrBitmapVirtualAddress);
 
     LogInfo("Msr Bitmap Virtual Address : 0x%llx", g_GuestState[ProcessorID].MsrBitmapVirtualAddress);
@@ -270,7 +273,7 @@ VmxAllocateMsrBitmap(INT ProcessorID)
 }
 
 /**
- * @brief Allocate a buffer forr I/O Bitmap
+ * @brief 为I / O Bitmap分配缓冲区
  * 
  * @param ProcessorID 
  * @return BOOLEAN Returns true if allocation was successfull otherwise returns false

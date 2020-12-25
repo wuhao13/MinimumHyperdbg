@@ -161,6 +161,7 @@
 #define EXIT_REASON_APIC_WRITE                   56
 #define EXIT_REASON_RDRAND                       57
 #define EXIT_REASON_INVPCID                      58
+#define EXIT_REASON_VMFUNC						 59
 #define EXIT_REASON_RDSEED                       61
 #define EXIT_REASON_PML_FULL                     62
 #define EXIT_REASON_XSAVES                       63
@@ -566,15 +567,14 @@ typedef struct _VIRTUAL_MACHINE_STATE
     UINT64  VmcsRegionPhysicalAddress;                                     // VMCS region physical address
 	//Vmxcs区域虚拟地址
     UINT64  VmcsRegionVirtualAddress;                                      // VMCS region virtual address
-    UINT64  VmmStack;                                                      // Stack for VMM in VM-Exit State
-    UINT64  MsrBitmapVirtualAddress;                                       // Msr Bitmap Virtual Address
-    UINT64  MsrBitmapPhysicalAddress;                                      // Msr Bitmap Physical Address
-    UINT64  IoBitmapVirtualAddressA;                                       // I/O Bitmap Virtual Address (A)
-    UINT64  IoBitmapPhysicalAddressA;                                      // I/O Bitmap Physical Address (A)
-    UINT64  IoBitmapVirtualAddressB;                                       // I/O Bitmap Virtual Address (B)
-    UINT64  IoBitmapPhysicalAddressB;                                      // I/O Bitmap Physical Address (B)
-    UINT32  PendingExternalInterrupts[PENDING_INTERRUPTS_BUFFER_CAPACITY]; // This list holds a buffer for external-interrupts that are in pending state due to the external-interrupt
-                                                                           // blocking and waits for interrupt-window exiting
+    UINT64  VmmStack;                                                      // VM退出状态下的VMM堆栈
+    UINT64  MsrBitmapVirtualAddress;                                       // Msr Bitmap 虚拟地址
+    UINT64  MsrBitmapPhysicalAddress;                                      // Msr Bitmap 物理地址
+    UINT64  IoBitmapVirtualAddressA;                                       // I/O Bitmap 虚拟地址 (A)
+    UINT64  IoBitmapPhysicalAddressA;                                      // I/O Bitmap 物理地址 (A)
+    UINT64  IoBitmapVirtualAddressB;                                       // I/O Bitmap 虚拟地址 (B)
+    UINT64  IoBitmapPhysicalAddressB;                                      // I/O Bitmap 物理地址 (B)
+    UINT32  PendingExternalInterrupts[PENDING_INTERRUPTS_BUFFER_CAPACITY]; // 此列表为由于外部中断阻塞而处于挂起状态的外部中断保留一个缓冲区，并等待中断窗口退出
                                                                            // From hvpp :
                                                                            // Pending interrupt queue (FIFO).
                                                                            // Make storage for up-to 64 pending interrupts.

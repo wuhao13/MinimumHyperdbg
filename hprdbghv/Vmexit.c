@@ -47,7 +47,7 @@ VmxVmexitHandler(PGUEST_REGS GuestRegs)
     g_GuestState[CurrentProcessorIndex].IsOnVmxRootMode = TRUE;
 
     //
-    // read the exit reason and exit qualification
+    // 读取退出代码
     //
 
     __vmx_vmread(VM_EXIT_REASON, &ExitReason);
@@ -65,7 +65,7 @@ VmxVmexitHandler(PGUEST_REGS GuestRegs)
     GuestRegs->rsp = GuestRsp;
 
     //
-    // Read the exit qualification
+    // 阅读出口资格
     //
 
     __vmx_vmread(EXIT_QUALIFICATION, &ExitQualification);
@@ -79,6 +79,14 @@ VmxVmexitHandler(PGUEST_REGS GuestRegs)
 
     switch (ExitReason)
     {
+	case EXIT_REASON_VMFUNC:
+	{
+		if (GuestRegs->rax < 63)
+		{
+			LogError("call VM_FUNC.");
+		}
+		break;
+	}
     case EXIT_REASON_TRIPLE_FAULT:
     {
         LogError("Triple fault error occured.");

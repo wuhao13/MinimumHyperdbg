@@ -312,7 +312,7 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
     IA32_VMX_BASIC_MSR VmxBasicMsr     = {0};
 
     //
-    // Reading IA32_VMX_BASIC_MSR
+    // 阅读IA32_VMX_BASIC_MSR
     //
     VmxBasicMsr.All = __readmsr(MSR_IA32_VMX_BASIC);
 
@@ -325,7 +325,7 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
     __vmx_vmwrite(HOST_TR_SELECTOR, AsmGetTr() & 0xF8);
 
     //
-    // Setting the link pointer to the required value for 4KB VMCS
+    // 将链接指针设置为4KB VMCS所需的值
     //
     __vmx_vmwrite(VMCS_LINK_POINTER, ~0ULL);
 
@@ -333,7 +333,7 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
     __vmx_vmwrite(GUEST_IA32_DEBUGCTL_HIGH, __readmsr(MSR_IA32_DEBUGCTL) >> 32);
 
     //
-    // ******* Time-stamp counter offset *******
+    // ******* 时间戳记计数器偏移 *******
     //
     __vmx_vmwrite(TSC_OFFSET, 0);
 
@@ -369,6 +369,7 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
             VmxBasicMsr.Fields.VmxCapabilityHint ? "MSR_IA32_VMX_TRUE_PROCBASED_CTLS" : "MSR_IA32_VMX_PROCBASED_CTLS",
             CpuBasedVmExecControls);
 
+	// 添加VMFunc，参见24.6.14
     SecondaryProcBasedVmExecControls = HvAdjustControls(CPU_BASED_CTL2_RDTSCP |
                                                             CPU_BASED_CTL2_ENABLE_EPT | CPU_BASED_CTL2_ENABLE_INVPCID |
                                                             CPU_BASED_CTL2_ENABLE_XSAVE_XRSTORS | CPU_BASED_CTL2_ENABLE_VPID,
@@ -383,6 +384,8 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
 
     __vmx_vmwrite(VM_ENTRY_CONTROLS, HvAdjustControls(VM_ENTRY_IA32E_MODE, VmxBasicMsr.Fields.VmxCapabilityHint ? MSR_IA32_VMX_TRUE_ENTRY_CTLS : MSR_IA32_VMX_ENTRY_CTLS));
 
+
+	//IA32_VMX_PROCBASED_CTLS
     __vmx_vmwrite(CR0_GUEST_HOST_MASK, 0);
     __vmx_vmwrite(CR4_GUEST_HOST_MASK, 0);
 
@@ -399,8 +402,7 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
     __vmx_vmwrite(HOST_CR4, __readcr4());
 
     //
-    // Because we may be executing in an arbitrary user-mode, process as part
-    // of the DPC interrupt we execute in We have to save Cr3, for HOST_CR3
+    // 因为我们可能在任意用户模式下执行，所以作为DPC中断的一部分，我们要在其中执行处理。我们必须将Cr3保存为主机CR3
     //
 
     __vmx_vmwrite(HOST_CR3, FindSystemDirectoryTableBase());
@@ -430,43 +432,41 @@ VmxSetupVmcs(VIRTUAL_MACHINE_STATE * CurrentGuestState, PVOID GuestStack)
     __vmx_vmwrite(HOST_SYSENTER_ESP, __readmsr(MSR_IA32_SYSENTER_ESP));
 
     //
-    // Set MSR Bitmaps
+    // 设置 MSR Bitmaps
     //
     __vmx_vmwrite(MSR_BITMAP, CurrentGuestState->MsrBitmapPhysicalAddress);
 
     //
-    // Set I/O Bitmaps
+    // 设置 I/O Bitmaps
     //
     __vmx_vmwrite(IO_BITMAP_A, CurrentGuestState->IoBitmapPhysicalAddressA);
     __vmx_vmwrite(IO_BITMAP_B, CurrentGuestState->IoBitmapPhysicalAddressB);
 
     //
-    // Set up EPT
+    // 设置EPT
     //
     __vmx_vmwrite(EPT_POINTER, g_EptState->EptPointer.Flags);
 
     //
-    // Set up VPID
+    // 设置VPID
 
     //
-    // For all processors, we will use a VPID = 1. This allows the processor to separate caching
-    //  of EPT structures away from the regular OS page translation tables in the TLB.
+    //对于所有处理器，我们将使用VPID =1。这允许处理器将EPT结构的缓存与TLB中的常规OS页面转换表分开。
     //
     __vmx_vmwrite(VIRTUAL_PROCESSOR_ID, VPID_TAG);
 
     //
-    //setup guest rsp
+    // 设置访客rsp
     //
     __vmx_vmwrite(GUEST_RSP, (ULONG64)GuestStack);
 
     //
-    //setup guest rip
+    // 设置访客rip
     //
     __vmx_vmwrite(GUEST_RIP, (ULONG64)AsmVmxRestoreState);
 
     //
-    // Stack should be aligned to 16 because we wanna save XMM and FPU registers and those instructions
-    // needs aligment to 16
+    // 堆栈应对齐16，因为我们要保存XMM和FPU寄存器，并且这些指令需要匹配16
     //
     HostRsp = (ULONG64)CurrentGuestState->VmmStack + VMM_STACK_SIZE - 1;
     HostRsp = ((PVOID)((ULONG_PTR)(HostRsp) & ~(16 - 1)));
