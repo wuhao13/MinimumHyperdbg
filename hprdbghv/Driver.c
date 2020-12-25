@@ -214,39 +214,6 @@ NTSTATUS NtCreateFileHook(
 	_In_ ULONG EaLength
 )
 {
-	/*
-	HANDLE         kFileHandle;
-	NTSTATUS       ConvertStatus;
-	UNICODE_STRING kObjectName;
-	ANSI_STRING    FileNameA;
-	
-	kObjectName.Buffer = NULL;
-	
-	__try
-	{
-		ProbeForRead(FileHandle, sizeof(HANDLE), 1);
-		ProbeForRead(ObjectAttributes, sizeof(OBJECT_ATTRIBUTES), 1);
-		ProbeForRead(ObjectAttributes->ObjectName, sizeof(UNICODE_STRING), 1);
-		ProbeForRead(ObjectAttributes->ObjectName->Buffer, ObjectAttributes->ObjectName->Length, 1);
-
-		kFileHandle = *FileHandle;
-		kObjectName.Length = ObjectAttributes->ObjectName->Length;
-		kObjectName.MaximumLength = ObjectAttributes->ObjectName->MaximumLength;
-		kObjectName.Buffer = ExAllocatePoolWithTag(NonPagedPool, kObjectName.MaximumLength, 0xA);
-		RtlCopyUnicodeString(&kObjectName, ObjectAttributes->ObjectName);
-
-		ConvertStatus = RtlUnicodeStringToAnsiString(&FileNameA, ObjectAttributes->ObjectName, TRUE);
-		//	LogInfo("NtCreateFile called for : %s", FileNameA.Buffer);
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-	}
-
-	if (kObjectName.Buffer)
-	{
-		ExFreePoolWithTag(kObjectName.Buffer, 0xA);
-	}
-	*/
 	return NtCreateFileOrig(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
 }
 
@@ -283,10 +250,7 @@ DrvCreate(PDEVICE_OBJECT DeviceObject, PIRP Irp)
     }
 	*/
     //
-    // Check to allow just one handle to the driver
-    // means that only one application can get the handle
-    // and new application won't allowed to create a new
-    // handle unless the IRP_MJ_CLOSE called.
+    // 检查以仅允许驱动程序使用一个句柄意味着只有一个应用程序可以获取该句柄，除非调用IRP MJ CLOSE，否则新应用程序将不允许创建新的句柄。
     //
     if (g_HandleInUse)
     {
@@ -328,9 +292,9 @@ DrvCreate(PDEVICE_OBJECT DeviceObject, PIRP Irp)
     //
     if (HvVmxInitialize())
     {
-		UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtCreateFile");
-		ApiLocationFromSSDTOfNtCreateFile = MmGetSystemRoutineAddress(&StringNtCreateFile);
-		NtCreateFileOrig = EptHook2(ApiLocationFromSSDTOfNtCreateFile, NtCreateFileHook, (UINT32)PsGetCurrentProcessId(), (BOOLEAN)FALSE, (BOOLEAN)FALSE, (BOOLEAN)TRUE);
+		//UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtCreateFile");
+		//ApiLocationFromSSDTOfNtCreateFile = MmGetSystemRoutineAddress(&StringNtCreateFile);
+		//NtCreateFileOrig = EptHook2(ApiLocationFromSSDTOfNtCreateFile, NtCreateFileHook, (UINT32)PsGetCurrentProcessId(), (BOOLEAN)FALSE, (BOOLEAN)FALSE, (BOOLEAN)TRUE);
 		//KeGenericCallDpc(BroadcastDpcEnableBreakpointOnExceptionBitmapOnAllCores, NULL);
         LogInfo("Hyperdbg's hypervisor loaded successfully :)");
 

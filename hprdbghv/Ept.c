@@ -150,7 +150,7 @@ EptGetPml1Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
     PML4Entry        = ADDRMASK_EPT_PML4_INDEX(PhysicalAddress);
 
     //
-    // Addresses above 512GB are invalid because it is > physical address bus width
+    // 大于512GB的地址无效，因为它>物理地址总线宽度
     //
     if (PML4Entry > 0)
     {
@@ -160,7 +160,7 @@ EptGetPml1Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
     PML2 = &EptPageTable->PML2[DirectoryPointer][Directory];
 
     //
-    // Check to ensure the page is split
+    // 检查以确保页面已拆分
     //
     if (PML2->LargePage)
     {
@@ -168,13 +168,13 @@ EptGetPml1Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
     }
 
     //
-    // Conversion to get the right PageFrameNumber.
-    // These pointers occupy the same place in the table and are directly convertable.
+    // 进行转换以获得正确的页面框架编号。
+    // 这些指针在表中占据相同位置，并且可以直接转换。
     //
     PML2Pointer = (PEPT_PML2_POINTER)PML2;
 
     //
-    // If it is, translate to the PML1 pointer
+    // 如果是，则转换为PML1指针
     //
     PML1 = (PEPT_PML1_ENTRY)PhysicalAddressToVirtualAddress((PVOID)(PML2Pointer->PageFrameNumber * PAGE_SIZE));
 
@@ -184,7 +184,7 @@ EptGetPml1Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
     }
 
     //
-    // Index into PML1 for that address
+    // 该地址的PML1索引
     //
     PML1 = &PML1[ADDRMASK_EPT_PML1_INDEX(PhysicalAddress)];
 
@@ -221,7 +221,7 @@ EptGetPml2Entry(PVMM_EPT_PAGE_TABLE EptPageTable, SIZE_T PhysicalAddress)
 }
 
 /**
- * @brief Split 2MB (LargePage) into 4kb pages
+ * @brief 将2MB（大页面）拆分为4kb页面
  * 将2MB（大页面）拆分为4kb页面
  * @param EptPageTable The EPT Page Table
  * @param PreAllocatedBuffer The address of pre-allocated buffer
@@ -419,13 +419,13 @@ EptAllocateAndCreateIdentityPageTable()
     SIZE_T              EntryIndex;
 
     //
-    // Allocate all paging structures as 4KB aligned pages
+    // 将所有分页结构分配为4KB对齐的页面
     //
     PHYSICAL_ADDRESS MaxSize;
     PVOID            Output;
 
     //
-    // Allocate address anywhere in the OS's memory space
+    // 在OS内存空间中的任意位置分配地址
     //
     MaxSize.QuadPart = MAXULONG64;
 
@@ -557,12 +557,12 @@ EptLogicalProcessorInitialize()
     g_EptState->EptPageTable = PageTable;
 
     //
-    // For performance, we let the processor know it can cache the EPT
+    // 为了提高性能，我们让处理器知道它可以缓存EPT
     //
     EPTP.MemoryType = MEMORY_TYPE_WRITE_BACK;
 
     //
-    // We are not utilizing the 'access' and 'dirty' flag features
+    // 我们没有利用“访问”和“脏”标志功能
     //
     EPTP.EnableAccessAndDirtyFlags = FALSE;
 
@@ -573,12 +573,12 @@ EptLogicalProcessorInitialize()
     EPTP.PageWalkLength = 3;
 
     //
-    // The physical page number of the page table we will be using
+    // 我们将使用的页表的物理页号
     //
     EPTP.PageFrameNumber = (SIZE_T)VirtualAddressToPhysicalAddress(&PageTable->PML4) / PAGE_SIZE;
 
     //
-    // We will write the EPTP to the VMCS later
+    // 稍后我们将把EPTP写入VMCS
     //
     g_EptState->EptPointer = EPTP;
 
@@ -588,8 +588,7 @@ EptLogicalProcessorInitialize()
 /**
  * @brief Initialize Secondary EPT for an individual logical processor
  * 初始化单个处理器的辅助EPT
- * @details Creates an identity mapped page table and sets up an EPTP to be applied to the VMCS later
- * this identity map will be used in debugger mechanisms
+ * @details 创建一个身份映射页表并设置一个EPTP，以稍后将其应用于VMCS此身份映射将在调试器机制中使用
  * 
  * @return BOOLEAN 
  */
@@ -600,7 +599,7 @@ EptInitializeSeconadaryEpt()
     EPTP                EPTP = {0};
 
     //
-    // Allocate the identity mapped page table
+    // 分配身份映射页表
     //
     PageTable = EptAllocateAndCreateIdentityPageTable();
     if (!PageTable)
@@ -615,12 +614,12 @@ EptInitializeSeconadaryEpt()
     g_EptState->SecondaryEptPageTable = PageTable;
 
     //
-    // For performance, we let the processor know it can cache the EPT
+    // 为了提高性能，我们让处理器知道它可以缓存EPT
     //
     EPTP.MemoryType = MEMORY_TYPE_WRITE_BACK;
 
     //
-    // We are not utilizing the 'access' and 'dirty' flag features
+    // 我们没有利用“访问”和“脏”标志功能
     //
     EPTP.EnableAccessAndDirtyFlags = FALSE;
 
@@ -631,17 +630,17 @@ EptInitializeSeconadaryEpt()
     EPTP.PageWalkLength = 3;
 
     //
-    // The physical page number of the page table we will be using
+    // 我们将使用的页表的物理页号
     //
     EPTP.PageFrameNumber = (SIZE_T)VirtualAddressToPhysicalAddress(&PageTable->PML4) / PAGE_SIZE;
 
     //
-    // We will write the EPTP to the VMCS later
+    // 稍后我们将把EPTP写入VMCS
     //
     g_EptState->SecondaryEptPointer = EPTP;
 
     //
-    // Set the secondary table to initialized state
+    // 将辅助表设置为初始化状态
     //
     g_EptState->SecondaryInitialized = TRUE;
 
@@ -649,9 +648,8 @@ EptInitializeSeconadaryEpt()
 }
 
 /**
- * @brief Check if this exit is due to a violation caused by a currently hooked page
- * @details If the memory access attempt was RW and the page was marked executable, the page is swapped with
- * the original page.
+ * @brief 检查此退出是否是由于当前挂钩页面引起的违规
+ * @details 如果内存访问尝试为RW，并且页面被标记为可执行，则该页面将与原始页面交换。
  *
  * If the memory access attempt was execute and the page was marked not executable, the page is swapped with
  * the hooked page.

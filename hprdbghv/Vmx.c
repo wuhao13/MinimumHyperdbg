@@ -72,7 +72,7 @@ VmxInitializer()
         LogInfo("Your processor supports all EPT features");
 
         //
-        // Build MTRR Map
+        // 建立 MTRR Map
         //
         if (!EptBuildMtrrMap())
         {
@@ -95,7 +95,7 @@ VmxInitializer()
     if (!EptLogicalProcessorInitialize())
     {
         //
-        // There were some errors in EptLogicalProcessorInitialize
+        // Ept逻辑处理器初始化中存在一些错误
         //
         return FALSE;
     }

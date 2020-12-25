@@ -28,7 +28,7 @@ VmxDpcBroadcastAllocateVmxonRegions(KDPC * Dpc, PVOID DeferredContext, PVOID Sys
     LogInfo("Allocating Vmx Regions for logical core %d", CurrentProcessorNumber);
 
     //
-    // Enabling VMX Operation
+    // 启用VMX操作
     // 启动VMX
 	//
     AsmEnableVmxOperation();
@@ -47,12 +47,12 @@ VmxDpcBroadcastAllocateVmxonRegions(KDPC * Dpc, PVOID DeferredContext, PVOID Sys
     }
 
     //
-    // Wait for all DPCs to synchronize at this point
+    // 此时等待所有DPC同步
     //
     KeSignalCallDpcSynchronize(SystemArgument2);
 
     //
-    // Mark the DPC as being complete
+    // 将DPC标记为已完成
     //
     KeSignalCallDpcDone(SystemArgument1);
 
@@ -79,7 +79,7 @@ VmxAllocateVmxonRegion(VIRTUAL_MACHINE_STATE * CurrentGuestState)
     UINT64             AlignedVmxonRegionPhysicalAddr;
 
     //
-    // at IRQL > DISPATCH_LEVEL memory allocation routines don't work
+    // 在IRQL> DISPATCH LEVEL内存分配例程不起作用
     //
     if (KeGetCurrentIrql() > DISPATCH_LEVEL)
         KeRaiseIrqlToDpcLevel();
@@ -89,7 +89,7 @@ VmxAllocateVmxonRegion(VIRTUAL_MACHINE_STATE * CurrentGuestState)
     VmxonSize = 2 * VMXON_SIZE;
 
     //
-    // Allocating a 4-KByte Contigous Memory region
+    // 分配4 KB连续内存区域
     //
     VmxonRegion = MmAllocateContiguousMemory(VmxonSize + ALIGNMENT_PAGE_SIZE, PhysicalMax);
 
@@ -110,7 +110,7 @@ VmxAllocateVmxonRegion(VIRTUAL_MACHINE_STATE * CurrentGuestState)
     LogInfo("VMXON Region Address : %llx", AlignedVmxonRegion);
 
     //
-    // 4 kb >= buffers are aligned, just a double check to ensure if it's aligned
+    // 4 kb> =缓冲区已对齐，请仔细检查以确保其是否对齐
     //
     AlignedVmxonRegionPhysicalAddr = (BYTE *)((ULONG_PTR)(VmxonRegionPhysicalAddr + ALIGNMENT_PAGE_SIZE - 1) & ~(ALIGNMENT_PAGE_SIZE - 1));
     LogInfo("VMXON Region Physical Address : %llx", AlignedVmxonRegionPhysicalAddr);

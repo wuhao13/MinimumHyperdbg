@@ -346,17 +346,14 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     }
 
     //
-    // Translate the page from a physical address to virtual so we can read its memory.
-    // This function will return NULL if the physical address was not already mapped in
-    // virtual memory.
+    // 将页面从物理地址转换为虚拟地址，以便我们读取其内存。
+    // 如果物理地址尚未映射到虚拟内存中，则此函数将返回NULL。
 	// 计算虚拟地址的页地址
     //
     VirtualTarget = PAGE_ALIGN(TargetAddress);
 
     //
-    // Here we have to change the CR3, it is because we are in SYSTEM process
-    // and if the target address is not mapped in SYSTEM address space (e.g
-    // user mode address of another process) then the translation is invalid
+    // 在这里我们必须更改CR3，这是因为我们处于SYSTEM进程中，并且如果目标地址未映射到SYSTEM地址空间（例如另一个进程的用户模式地址）中，则转换无效
     //
 
     //
@@ -413,12 +410,12 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     }
 
     //
-    // Pointer to the page entry in the page table
+    // 指向页面表中页面条目的指针
     //
     TargetPage = EptGetPml1Entry(g_EptState->EptPageTable, PhysicalBaseAddress);
 
     //
-    // Ensure the target is valid
+    // 确保目标有效
     //
     if (!TargetPage)
     {
@@ -478,7 +475,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     HookedPage->EntryAddress = TargetPage;
 
     //
-    // Save the orginal entry
+    // 保存原始条目
     //
     HookedPage->OriginalEntry = *TargetPage;
 
@@ -488,13 +485,12 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     if (UnsetExecute)
     {
         //
-        // Show that entry has hidden hooks for execution
+        // 显示条目具有隐藏的执行钩子
         //
         HookedPage->IsExecutionHook = TRUE;
 
         //
-        // In execution hook, we have to make sure to unset read, write because
-        // an EPT violation should occur for these cases and we can swap the original page
+        // 在执行挂钩中，我们必须确保取消设置读写，因为在这种情况下会发生EPT冲突，因此我们可以交换原始页面
         //
         ChangedEntry.ReadAccess    = 0; //禁止读
         ChangedEntry.WriteAccess   = 0; //禁止写
@@ -506,19 +502,19 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
         ChangedEntry.PageFrameNumber = HookedPage->PhysicalBaseAddressOfFakePageContents;
 
         //
-        // Switch to target process
+        // 切换到目标进程
         //
         Cr3OfCurrentProcess = SwitchOnAnotherProcessMemoryLayoutByCr3(ProcessCr3);
 
         //
-        // Copy the content to the fake page
-        // The following line can't be used in user mode addresses
+		//将内容复制到假页面
+        //以下行不能在用户模式地址中使用
         // RtlCopyBytes(&HookedPage->FakePageContents, VirtualTarget, PAGE_SIZE);
         //
         MemoryMapperReadMemorySafe(VirtualTarget, &HookedPage->FakePageContents, PAGE_SIZE);
 
         //
-        // Restore to original process
+        // 恢复到原始过程
         //
         RestoreToPreviousProcess(Cr3OfCurrentProcess);
 
@@ -543,7 +539,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     }
 
     //
-    // Save the modified entry
+    // 保存修改后的条目
     //
     HookedPage->ChangedEntry = ChangedEntry;
 
@@ -554,19 +550,19 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
     InsertHeadList(&g_EptState->HookedPagesList, &(HookedPage->PageHookList));
 
     //
-    // if not launched, there is no need to modify it on a safe environment
+    // 如果未启动，则无需在安全的环境中对其进行修改
     //
     if (!g_GuestState[LogicalCoreIndex].HasLaunched)
     {
         //
-        // Apply the hook to EPT
+        // 将挂钩应用到EPT
         //
         TargetPage->Flags = ChangedEntry.Flags;
     }
     else
     {
         //
-        // Apply the hook to EPT
+        // 将挂钩应用到EPT
         //
         EptSetPML1AndInvalidateTLB(TargetPage, ChangedEntry, INVEPT_SINGLE_CONTEXT);
     }
@@ -605,8 +601,7 @@ EptHook2(PVOID TargetAddress, PVOID HookFunction, UINT32 ProcessId, BOOLEAN eSet
     if (eSetHookForExec && !g_ExecuteOnlySupport)
     {
         //
-        // In the current design of hyperdbg we use execute-only pages to implement hidden hooks for exec page,
-        // so your processor doesn't have this feature and you have to implment it in other ways :(
+        // 在当前的hyperdbg设计中，我们使用仅执行页面为exec页面实现隐藏的钩子，因此您的处理器没有此功能，您必须以其他方式实现它：(
         //
         return NULL;
     }
@@ -705,18 +700,18 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 	ULONG64 AlignedPhysicalAddress;
 
 	//
-	// Get alignment
+	// 对齐
 	//
 	AlignedVirtualAddress = PAGE_ALIGN(HookedEntryDetails->VirtualAddress);
 	AlignedPhysicalAddress = PAGE_ALIGN(PhysicalAddress);
 
 	//
-	// Let's read the exact address that was accesses
+	// 让我们阅读访问的确切地址
 	//
 	ExactAccessedAddress = AlignedVirtualAddress + PhysicalAddress - AlignedPhysicalAddress;
 
 	//
-	// Reading guest's RIP
+	// 阅读Guest的RIP
 	//
 	__vmx_vmread(GUEST_RIP, &GuestRip);
 
@@ -751,18 +746,18 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 	else
 	{
 		//
-		// there was an unexpected ept violation
+		// 发生意外的ept违规
 		//
 		return FALSE;
 	}
 
 	//
-	// Restore to its orginal entry for one instruction
+	// 恢复一条指令的原始条目
 	//
 	EptSetPML1AndInvalidateTLB(HookedEntryDetails->EntryAddress, HookedEntryDetails->OriginalEntry, INVEPT_SINGLE_CONTEXT);
 
 	//
-	// Means that restore the Entry to the previous state after current instruction executed in the guest
+	// 意味着在来宾中执行当前指令后，将Entry恢复到以前的状态
 	//
 	return TRUE;
 }

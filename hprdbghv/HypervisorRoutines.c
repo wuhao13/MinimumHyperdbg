@@ -203,51 +203,45 @@ HvHandleCpuid(PGUEST_REGS RegistersState)
     UINT64 Context = 0;
 
     //
-    // Set the context (save eax for the debugger)
+    // 设置上下文（为调试器保存eax）
     //
     Context = RegistersState->rax;
 
     //
-    // Otherwise, issue the CPUID to the logical processor based on the indexes
-    // on the VP's GPRs.
+    // Otherwise, issue the CPUID to the logical processor based on the indexes on the VP's GPRs.
     //
     __cpuidex(cpu_info, (INT32)RegistersState->rax, (INT32)RegistersState->rcx);
 
     //
-    // check whether we are in transparent mode or not
-    // if we are in transparent mode then ignore the
-    // cpuid modifications e.g. hyperviosr name or bit
+    // check whether we are in transparent mode or not if we are in transparent mode then ignore the cpuid modifications e.g. hyperviosr name or bit
     //
     if (!g_TransparentMode)
     {
         //
-        // Check if this was CPUID 1h, which is the features request
+        //检查这是否是CPUID 1h，这是功能请求
         //
         if (RegistersState->rax == CPUID_PROCESSOR_AND_PROCESSOR_FEATURE_IDENTIFIERS)
         {
             //
-            // Set the Hypervisor Present-bit in RCX, which Intel and AMD have both
-            // reserved for this indication
+            // 设置RCX中的Hypervisor Present-bit，Intel和AMD都保留了此指示
             //
             cpu_info[2] |= HYPERV_HYPERVISOR_PRESENT_BIT;
         }
         else if (RegistersState->rax == CPUID_HV_VENDOR_AND_MAX_FUNCTIONS)
         {
             //
-            // Return a maximum supported hypervisor CPUID leaf range and a vendor
-            // ID signature as required by the spec
+            // Return a maximum supported hypervisor CPUID leaf range and a vendor ID signature as required by the spec
             //
 
             cpu_info[0] = HYPERV_CPUID_INTERFACE;
-            cpu_info[1] = 'epyH'; // [HyperDbg.com]
-            cpu_info[2] = 'gbDr';
-            cpu_info[3] = 'moc.';
+            cpu_info[1] = 'ahuw'; // [HyperDbg.com]
+            cpu_info[2] = '.31o';
+            cpu_info[3] = 'nix';
         }
         else if (RegistersState->rax == HYPERV_CPUID_INTERFACE)
         {
             //
-            // Return non Hv#1 value. This indicate that our hypervisor does NOT
-            // conform to the Microsoft hypervisor interface.
+            // 返回非Hv＃1值。这表明我们的管理程序不符合Microsoft管理程序界面.
             //
 
             cpu_info[0] = '0#vH'; // Hv#0
