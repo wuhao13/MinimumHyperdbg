@@ -735,6 +735,7 @@ EptHandleEptViolation(PGUEST_REGS Regs, ULONG ExitQualification, UINT64 GuestPhy
 	/**/
     if (EptHandlePageHookExit(Regs, ViolationQualification, GuestPhysicalAddr))
     {
+        LogError("There were errors in handling Ept Violation");
         //
         // Handled by page hook code
         //

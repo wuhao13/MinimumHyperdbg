@@ -248,6 +248,7 @@ EptHookInstructionMemory(PEPT_HOOKED_PAGE_DETAIL Hook, CR3_TYPE ProcessCr3, PVOI
 
     //
     // The following line can't be used in user mode addresses
+    // 这里将原始代码保存到跳板内存中
     // RtlCopyMemory(Hook->Trampoline, TargetFunction, SizeOfHookedInstructions);
     //
     MemoryMapperReadMemorySafe(TargetFunction, Hook->Trampoline, SizeOfHookedInstructions);
@@ -259,7 +260,7 @@ EptHookInstructionMemory(PEPT_HOOKED_PAGE_DETAIL Hook, CR3_TYPE ProcessCr3, PVOI
 
     //
     // Add the absolute jump back to the original function
-	// 构建跳板代码
+	// 在跳板内存尾部构造一个跳转，用于跳回原始代码
     //
     EptHookWriteAbsoluteJump2(&Hook->Trampoline[SizeOfHookedInstructions], (SIZE_T)TargetFunction + SizeOfHookedInstructions);
 
@@ -276,7 +277,8 @@ EptHookInstructionMemory(PEPT_HOOKED_PAGE_DETAIL Hook, CR3_TYPE ProcessCr3, PVOI
     // Create the structure to return for the debugger, we do it here because it's the first
     // function that changes the original function and if our structure is no ready after this
     // fucntion then we probably see BSOD on other cores
-    //
+    // 
+    // 从池里申请一块内存
     DetourHookDetails                        = PoolManagerRequestPool(DETOUR_HOOK_DETAILS, TRUE, sizeof(HIDDEN_HOOKS_DETOUR_DETAILS));
     DetourHookDetails->HookedFunctionAddress = TargetFunction;
     DetourHookDetails->ReturnAddress         = Hook->Trampoline;
@@ -295,7 +297,7 @@ EptHookInstructionMemory(PEPT_HOOKED_PAGE_DETAIL Hook, CR3_TYPE ProcessCr3, PVOI
 
     //
     // Write the absolute jump to our shadow page memory to jump to our hook
-	// 最后在影子野写入跳转代码，实现hook
+	// 最后在影子页写入跳转代码，实现hook
     // EptHookWriteAbsoluteJump有bug，会随机导致跳飞，已更换，应该问题不大
     EptHookWriteAbsoluteJump2(&Hook->FakePageContents[OffsetIntoPage], (SIZE_T)HookFunction);
 
@@ -566,10 +568,7 @@ EptHookPerformPageHook2(PVOID TargetAddress, PVOID HookFunction, CR3_TYPE Proces
         //
         EptSetPML1AndInvalidateTLB(TargetPage, ChangedEntry, INVEPT_SINGLE_CONTEXT);
     }
-		//
-		//存储CR3
-		//
-		//HookedEntry->ProcessCR3 = ProcessCr3;
+
     return TRUE;
 }
 
@@ -971,7 +970,6 @@ PVOID EptHookResultTrampoline(UINT64 VirtualAddress)
 			{
 				return (HookedEntry->Trampoline);
 			}
-			break;
 		}
 	}
 	return NULL;
