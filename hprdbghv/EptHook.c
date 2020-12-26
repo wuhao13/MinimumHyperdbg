@@ -704,6 +704,8 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 	AlignedVirtualAddress = PAGE_ALIGN(HookedEntryDetails->VirtualAddress);
 	AlignedPhysicalAddress = PAGE_ALIGN(PhysicalAddress);
 
+
+    
 	//
 	// 让我们阅读访问的确切地址
 	//
@@ -714,14 +716,16 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 	//
 	__vmx_vmread(GUEST_RIP, &GuestRip);
 
-	if (!ViolationQualification.EptExecutable && ViolationQualification.ExecuteAccess)
+   
+   
+	if (!ViolationQualification.EptExecutable && ViolationQualification.ExecuteAccess)  //不可执行
 	{
 		//
 		// Generally, we should never reach here, we didn't implement HyperDbg like this ;)
 		//
 		LogError("Guest RIP : 0x%llx tries to execute the page at : 0x%llx", GuestRip, ExactAccessedAddress);
 	}
-	else if (!ViolationQualification.EptWriteable && ViolationQualification.WriteAccess)
+	else if (!ViolationQualification.EptWriteable && ViolationQualification.WriteAccess) //不可写
 	{
 		//
 		// Test
@@ -732,7 +736,7 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 		//
 
 	}
-	else if (!ViolationQualification.EptReadable && ViolationQualification.ReadAccess)
+	else if (!ViolationQualification.EptReadable && ViolationQualification.ReadAccess) //不可读
 	{
 		//
 		// Test
@@ -749,10 +753,7 @@ EptHookHandleHookedPage(PGUEST_REGS Regs, EPT_HOOKED_PAGE_DETAIL * HookedEntryDe
 		//
 		return FALSE;
 	}
-
-	//
-	// 恢复一条指令的原始条目
-	//
+   
 	EptSetPML1AndInvalidateTLB(HookedEntryDetails->EntryAddress, HookedEntryDetails->OriginalEntry, INVEPT_SINGLE_CONTEXT);
 
 	//

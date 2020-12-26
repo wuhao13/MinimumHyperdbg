@@ -1183,11 +1183,13 @@ typedef struct _EPT_HOOKED_PAGE_DETAIL
     /**
 	 * @brief The original page entry. Will be copied back when the hook is removed
 	 * from the page.
+	 * 
 	 */
     EPT_PML1_ENTRY OriginalEntry;
 
     /**
 	 * @brief The original page entry. Will be copied back when the hook is remove from the page.
+	 * ԭʼҳPML1
 	 */
     EPT_PML1_ENTRY ChangedEntry;
 

@@ -610,6 +610,7 @@ HvNotifyAllToInvalidateEpt()
 {
     //
     // Let's notify them all
+    // 在所有处理器上调用HvInvalidateEptByVmcal
     //
     KeIpiGenericCall(HvInvalidateEptByVmcall, g_EptState->EptPointer.Flags);
 }

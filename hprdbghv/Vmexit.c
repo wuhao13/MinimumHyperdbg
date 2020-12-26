@@ -185,6 +185,7 @@ VmxVmexitHandler(PGUEST_REGS GuestRegs)
         //
         // Reading guest physical address
         //
+        //LogError("EXIT_REASON_EPT_VIOLATION");
         __vmx_vmread(GUEST_PHYSICAL_ADDRESS, &GuestPhysicalAddr);
 		// EPT页的处理流程
 		// EptHandleEptViolation -》 EptHandlePageHookExit
@@ -274,11 +275,13 @@ VmxVmexitHandler(PGUEST_REGS GuestRegs)
         }
         //
         // Redo the instruction
+        // 重做指令
         //
         g_GuestState[CurrentProcessorIndex].IncrementRip = FALSE;
 
         //
         // We don't need MTF anymore if it set to disable MTF
+        // 关闭MTF单步，页已经被偷偷换掉了
         //
         HvSetMonitorTrapFlag(FALSE);
 

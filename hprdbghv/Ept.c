@@ -658,7 +658,6 @@ EptInitializeSeconadaryEpt()
  * @param GuestPhysicalAddr The GUEST_PHYSICAL_ADDRESS that caused this EPT violation
  * @return BOOLEAN Returns true if it was successfull or false if the violation was not due to a page hook
  */
-//根据冲突进行换页，但是...没有处理自己写自己页的情况~~
 BOOLEAN
 EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION ViolationQualification, UINT64 GuestPhysicalAddr)
 {
@@ -687,7 +686,7 @@ EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION Vio
 				//
 				// Next we have to save the current hooked entry to restore on the next instruction's vm-exit
 				//
-				// 换页
+				// 记录换页地址，然后设置单步执行
 				g_GuestState[KeGetCurrentProcessorNumber()].MtfEptHookRestorePoint = HookedEntry;
 
 				//
@@ -710,6 +709,7 @@ EptHandlePageHookExit(PGUEST_REGS Regs, VMX_EXIT_QUALIFICATION_EPT_VIOLATION Vio
 	}
 	//
 	// Redo the instruction
+    // 不跳到下一条指令，也就是重新执行一遍当前指令，重新执行后会陷入VM_MFT_EXIT
 	//
 	g_GuestState[KeGetCurrentProcessorNumber()].IncrementRip = FALSE;
 	return IsHandled;
@@ -739,6 +739,8 @@ EptHandleEptViolation(PGUEST_REGS Regs, ULONG ExitQualification, UINT64 GuestPhy
         //
         // Handled by page hook code
         //
+        
+
         return TRUE;
     }
 	else
@@ -790,7 +792,7 @@ EptHandleMisconfiguration(UINT64 GuestAddress)
 
 /**
  * @brief This function set the specific PML1 entry in a spinlock protected area then invalidate the TLB
- * 使TLS缓存失效,即强制刷新TLS缓存
+ * 替换TLB中的PML1条目
  * @details This function should be called from vmx root-mode
  * 这个过程应当在根模式运行
  * 
