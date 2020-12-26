@@ -292,10 +292,10 @@ DrvCreate(PDEVICE_OBJECT DeviceObject, PIRP Irp)
     //
     if (HvVmxInitialize())
     {
-		//UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtCreateFile");
-		//ApiLocationFromSSDTOfNtCreateFile = MmGetSystemRoutineAddress(&StringNtCreateFile);
-		//NtCreateFileOrig = EptHook2(ApiLocationFromSSDTOfNtCreateFile, NtCreateFileHook, (UINT32)PsGetCurrentProcessId(), (BOOLEAN)FALSE, (BOOLEAN)FALSE, (BOOLEAN)TRUE);
-		//KeGenericCallDpc(BroadcastDpcEnableBreakpointOnExceptionBitmapOnAllCores, NULL);
+		UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtCreateFile");
+		ApiLocationFromSSDTOfNtCreateFile = MmGetSystemRoutineAddress(&StringNtCreateFile);
+		NtCreateFileOrig = EptHook2(ApiLocationFromSSDTOfNtCreateFile, NtCreateFileHook, (UINT32)PsGetCurrentProcessId(), (BOOLEAN)FALSE, (BOOLEAN)FALSE, (BOOLEAN)TRUE);
+		KeGenericCallDpc(BroadcastDpcEnableBreakpointOnExceptionBitmapOnAllCores, NULL);
         LogInfo("Hyperdbg's hypervisor loaded successfully :)");
 
 		Irp->IoStatus.Status      = STATUS_SUCCESS;
