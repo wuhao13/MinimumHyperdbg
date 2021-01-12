@@ -8,4 +8,5 @@ Author:https://github.com/HyperDbg/HyperDbg
 Streamline the author:Lonely
 
 Applicable system: windows7/8/8.1/10 x64 all
+
 Hardware requirements: Intel CPU with virtualization enabled
